@@ -1,0 +1,1 @@
+web: gunicorn minhaeiro:app --log-file=-

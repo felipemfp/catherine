@@ -3,6 +3,18 @@ from helpers import Crypt, Auth
 from flask.views import MethodView
 from models import db, User, Category, Person, Transaction, TransactionItem
 
+class InvalidUsage(Exception):
+    status_code = 400
+
+    def __init__(self, message='Invalid Usage', status_code=None):
+        Exception.__init__(self)
+        self.message = message
+        if status_code is not None:
+            self.status_code = status_code
+
+    def __str__(self):
+        return '{}: {}'.format(self.status_code, self.message)
+
 
 class UserAPI(MethodView):
     def get(self, user_id):
@@ -10,7 +22,7 @@ class UserAPI(MethodView):
         user = User.authenticate(user_id, auth_key)
         if user:
             return json.jsonify(user.as_dict())
-        return json.jsonify({})
+        raise InvalidUsage()
 
     def post(self):
         supposed_user = request.get_json(force=True)
@@ -24,7 +36,7 @@ class UserAPI(MethodView):
             db.session.commit()
             if user.user_id:
                 return json.jsonify(user.as_dict())
-        return json.jsonify({})
+        raise InvalidUsage()
 
     def put(self, user_id):
         auth_key = request.args.get('key')
@@ -36,7 +48,7 @@ class UserAPI(MethodView):
             user.password = Crypt.hash_sha256(new_user['password'])
             db.session.commit()
             return json.jsonify(user.as_dict())
-        return json.jsonify({})
+        raise InvalidUsage()
 
     def delete(self, user_id):
         auth_key = request.args.get('key')
@@ -45,7 +57,7 @@ class UserAPI(MethodView):
             db.session.delete(user)
             db.session.commit()
             return json.jsonify({'success': '{} was deleted'.format(user)})
-        return json.jsonify({})
+        raise InvalidUsage()
 
 
 class LoginAPI(MethodView):
@@ -54,7 +66,7 @@ class LoginAPI(MethodView):
         user = User.query.filter_by(login=supposed_user['login']).first_or_404()
         if user and user.password == Crypt.hash_sha256(supposed_user['password']):
             return json.jsonify(user.as_dict())
-        return json.jsonify({})
+        raise InvalidUsage()
 
 
 class CategoryAPI(MethodView):
@@ -65,7 +77,7 @@ class CategoryAPI(MethodView):
             if category_id:
                 return json.jsonify(user.categories.filter_by(category_id=category_id).first_or_404().as_dict())
             return json.jsonify({'categories': [category.as_dict() for category in user.categories]})
-        return json.jsonify({})
+        raise InvalidUsage()
 
     def post(self, user_id):
         auth_key = request.args.get('key')
@@ -80,7 +92,7 @@ class CategoryAPI(MethodView):
             db.session.commit()
             if category.category_id:
                 return json.jsonify(category.as_dict())
-        return json.jsonify({})
+        raise InvalidUsage()
 
     def put(self, user_id, category_id):
         auth_key = request.args.get('key')
@@ -92,7 +104,7 @@ class CategoryAPI(MethodView):
             category.icon_id = new_category['icon_id']
             db.session.commit()
             return json.jsonify(category.as_dict())
-        return json.jsonify({})
+        raise InvalidUsage()
 
     def delete(self, user_id, category_id):
         auth_key = request.args.get('key')
@@ -103,7 +115,7 @@ class CategoryAPI(MethodView):
                 db.session.delete(category)
                 db.session.commit()
                 return json.jsonify({'success': '{} was deleted'.format(category)})
-        return json.jsonify({})
+        raise InvalidUsage()
 
 
 class PersonAPI(MethodView):
@@ -114,7 +126,7 @@ class PersonAPI(MethodView):
             if person_id:
                 return json.jsonify(user.people.filter_by(person_id=person_id).first_or_404().as_dict())
             return json.jsonify({'people': [person.as_dict() for person in user.people]})
-        return json.jsonify({})
+        raise InvalidUsage()
 
     def post(self, user_id):
         auth_key = request.args.get('key')
@@ -128,7 +140,7 @@ class PersonAPI(MethodView):
             db.session.commit()
             if person.person_id:
                 return json.jsonify(person.as_dict())
-        return json.jsonify({})
+        raise InvalidUsage()
 
     def put(self, user_id, person_id):
         auth_key = request.args.get('key')
@@ -139,7 +151,7 @@ class PersonAPI(MethodView):
             person.name = new_person['name']
             db.session.commit()
             return json.jsonify(person.as_dict())
-        return json.jsonify({})
+        raise InvalidUsage()
 
     def delete(self, user_id, person_id):
         auth_key = request.args.get('key')
@@ -150,7 +162,7 @@ class PersonAPI(MethodView):
                 db.session.delete(person)
                 db.session.commit()
                 return json.jsonify({'success': '{} was deleted'.format(person)})
-        return json.jsonify({})
+        raise InvalidUsage()
 
 
 class TransactionAPI(MethodView):
@@ -161,7 +173,7 @@ class TransactionAPI(MethodView):
             if transaction_id:
                 return json.jsonify(user.transactions.filter_by(transaction_id=transaction_id).first_or_404().as_dict())
             return json.jsonify({'transactions': [transaction.as_dict() for transaction in user.transactions]})
-        return json.jsonify({})
+        raise InvalidUsage()
 
     def post(self, user_id):
         auth_key = request.args.get('key')
@@ -181,7 +193,7 @@ class TransactionAPI(MethodView):
             db.session.commit()
             if transaction.transaction_id:
                 return json.jsonify(transaction.as_dict())
-        return json.jsonify({})
+        raise InvalidUsage()
 
     def put(self, user_id, transaction_id):
         auth_key = request.args.get('key')
@@ -198,7 +210,7 @@ class TransactionAPI(MethodView):
             transaction.done = new_transaction['done']
             db.session.commit()
             return json.jsonify(transaction.as_dict())
-        return json.jsonify({})
+        raise InvalidUsage()
 
     def delete(self, user_id, transaction_id):
         auth_key = request.args.get('key')
@@ -209,7 +221,7 @@ class TransactionAPI(MethodView):
                 db.session.delete(transaction)
                 db.session.commit()
                 return json.jsonify({'success': '{} was deleted'.format(transaction)})
-        return json.jsonify({})
+        raise InvalidUsage()
 
 
 class TransactionItemAPI(MethodView):
@@ -221,7 +233,7 @@ class TransactionItemAPI(MethodView):
             if item_id:
                 return json.jsonify(transaction.transaction_items.filter_by(item_id=item_id).first_or_404().as_dict())
             return json.jsonify({'transaction_items': [item.as_dict() for item in transaction.transaction_items]})
-        return json.jsonify({})
+        raise InvalidUsage()
 
     def post(self, user_id, transaction_id):
         auth_key = request.args.get('key')
@@ -242,7 +254,7 @@ class TransactionItemAPI(MethodView):
             db.session.commit()
             if item.item_id:
                 return json.jsonify(item.as_dict())
-        return json.jsonify({})
+        raise InvalidUsage()
 
     def put(self, user_id, transaction_id, item_id):
         auth_key = request.args.get('key')
@@ -259,7 +271,7 @@ class TransactionItemAPI(MethodView):
             item.done = new_item['done']
             db.session.commit()
             return json.jsonify(item.as_dict())
-        return json.jsonify({})
+        raise InvalidUsage()
 
     def delete(self, user_id, transaction_id, item_id):
         auth_key = request.args.get('key')
@@ -271,4 +283,4 @@ class TransactionItemAPI(MethodView):
                 db.session.delete(item)
                 db.session.commit()
                 return json.jsonify({'success': '{} was deleted'.format(item)})
-        return json.jsonify({})
+        raise InvalidUsage()

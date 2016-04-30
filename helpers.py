@@ -4,26 +4,20 @@ import os
 
 
 class Auth:
-    MESSAGE_OK = 'Authentication key is valid';
-    MESSAGE_ERROR = 'Authentication key is invalid';
-
     @staticmethod
     def get_new_key():
-        chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-_'
+        CHARS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
         key = ''
-        for x in range(10):
-            key += random.choice(chars)
+        for x in range(15):
+            key += random.choice(CHARS)
         return key
 
 
 class Crypt:
     @staticmethod
-    def salt():
-        return os.environ.get('MINHAEIRO_SALT') or 'development_salt'
-
-    @staticmethod
     def hash_sha256(text):
-        return hashlib.sha256((Crypt.salt() + text).encode()).hexdigest()
+        SALT = os.environ.get('SALT', 'development_salt')
+        return hashlib.sha256((SALT + text).encode()).hexdigest()
 
 
 if __name__ == '__main__':

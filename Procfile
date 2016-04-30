@@ -1,1 +1,1 @@
-web: gunicorn minhaeiro:app --log-file=-
+web: gunicorn catherine:app --log-file=-

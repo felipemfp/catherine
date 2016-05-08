@@ -3,6 +3,14 @@ from helpers import Crypt, Auth
 from flask.views import MethodView
 from models import db, User, Category, Person, Transaction, TransactionItem
 
+def get_auth_key(_request):
+    auth_key = ''
+    auth_key = _request.headers.get('AuthKey')
+    if not auth_key:
+        auth_key = _request.args.get('key')
+    return auth_key;
+
+
 class InvalidUsage(Exception):
     status_code = 400
 
@@ -18,7 +26,7 @@ class InvalidUsage(Exception):
 
 class UserAPI(MethodView):
     def get(self, user_id):
-        auth_key = request.args.get('key')
+        auth_key = get_auth_key(request)
         user = User.authenticate(user_id, auth_key)
         if user:
             return json.jsonify(user.as_dict())
@@ -39,7 +47,7 @@ class UserAPI(MethodView):
         raise InvalidUsage()
 
     def put(self, user_id):
-        auth_key = request.args.get('key')
+        auth_key = get_auth_key(request)
         user = User.authenticate(user_id, auth_key)
         if user:
             new_user = request.get_json(force=True)
@@ -51,7 +59,7 @@ class UserAPI(MethodView):
         raise InvalidUsage()
 
     def delete(self, user_id):
-        auth_key = request.args.get('key')
+        auth_key = get_auth_key(request)
         user = User.authenticate(user_id, auth_key)
         if user:
             db.session.delete(user)
@@ -71,7 +79,7 @@ class LoginAPI(MethodView):
 
 class CategoryAPI(MethodView):
     def get(self, user_id, category_id):
-        auth_key = request.args.get('key')
+        auth_key = get_auth_key(request)
         user = User.authenticate(user_id, auth_key)
         if user:
             if category_id:
@@ -80,7 +88,7 @@ class CategoryAPI(MethodView):
         raise InvalidUsage()
 
     def post(self, user_id):
-        auth_key = request.args.get('key')
+        auth_key = get_auth_key(request)
         user = User.authenticate(user_id, auth_key)
         if user:
             supposed_category = request.get_json(force=True)
@@ -95,7 +103,7 @@ class CategoryAPI(MethodView):
         raise InvalidUsage()
 
     def put(self, user_id, category_id):
-        auth_key = request.args.get('key')
+        auth_key = get_auth_key(request)
         user = User.authenticate(user_id, auth_key)
         if user:
             new_category = request.get_json(force=True)
@@ -107,7 +115,7 @@ class CategoryAPI(MethodView):
         raise InvalidUsage()
 
     def delete(self, user_id, category_id):
-        auth_key = request.args.get('key')
+        auth_key = get_auth_key(request)
         user = User.authenticate(user_id, auth_key)
         if user:
             category = user.categories.filter_by(category_id=category_id).first_or_404()
@@ -120,7 +128,7 @@ class CategoryAPI(MethodView):
 
 class PersonAPI(MethodView):
     def get(self, user_id, person_id):
-        auth_key = request.args.get('key')
+        auth_key = get_auth_key(request)
         user = User.authenticate(user_id, auth_key)
         if user:
             if person_id:
@@ -129,7 +137,7 @@ class PersonAPI(MethodView):
         raise InvalidUsage()
 
     def post(self, user_id):
-        auth_key = request.args.get('key')
+        auth_key = get_auth_key(request)
         user = User.authenticate(user_id, auth_key)
         if user:
             supposed_person = request.get_json(force=True)
@@ -143,7 +151,7 @@ class PersonAPI(MethodView):
         raise InvalidUsage()
 
     def put(self, user_id, person_id):
-        auth_key = request.args.get('key')
+        auth_key = get_auth_key(request)
         user = User.authenticate(user_id, auth_key)
         if user:
             new_person = request.get_json(force=True)
@@ -154,7 +162,7 @@ class PersonAPI(MethodView):
         raise InvalidUsage()
 
     def delete(self, user_id, person_id):
-        auth_key = request.args.get('key')
+        auth_key = get_auth_key(request)
         user = User.authenticate(user_id, auth_key)
         if user:
             person = user.people.filter_by(person_id=person_id).first_or_404()
@@ -167,7 +175,7 @@ class PersonAPI(MethodView):
 
 class TransactionAPI(MethodView):
     def get(self, user_id, transaction_id):
-        auth_key = request.args.get('key')
+        auth_key = get_auth_key(request)
         user = User.authenticate(user_id, auth_key)
         if user:
             if transaction_id:
@@ -176,7 +184,7 @@ class TransactionAPI(MethodView):
         raise InvalidUsage()
 
     def post(self, user_id):
-        auth_key = request.args.get('key')
+        auth_key = get_auth_key(request)
         user = User.authenticate(user_id, auth_key)
         if user:
             supposed_transaction = request.get_json(force=True)
@@ -196,7 +204,7 @@ class TransactionAPI(MethodView):
         raise InvalidUsage()
 
     def put(self, user_id, transaction_id):
-        auth_key = request.args.get('key')
+        auth_key = get_auth_key(request)
         user = User.authenticate(user_id, auth_key)
         if user:
             new_transaction = request.get_json(force=True)
@@ -213,7 +221,7 @@ class TransactionAPI(MethodView):
         raise InvalidUsage()
 
     def delete(self, user_id, transaction_id):
-        auth_key = request.args.get('key')
+        auth_key = get_auth_key(request)
         user = User.authenticate(user_id, auth_key)
         if user:
             transaction = user.transactions.filter_by(transaction_id=transaction_id).first_or_404()
@@ -226,7 +234,7 @@ class TransactionAPI(MethodView):
 
 class TransactionItemAPI(MethodView):
     def get(self, user_id, transaction_id, item_id):
-        auth_key = request.args.get('key')
+        auth_key = get_auth_key(request)
         user = User.authenticate(user_id, auth_key)
         if user:
             transaction = user.transactions.filter_by(transaction_id=transaction_id).first_or_404()
@@ -236,7 +244,7 @@ class TransactionItemAPI(MethodView):
         raise InvalidUsage()
 
     def post(self, user_id, transaction_id):
-        auth_key = request.args.get('key')
+        auth_key = get_auth_key(request)
         user = User.authenticate(user_id, auth_key)
         if user:
             transaction = user.transactions.filter_by(transaction_id=transaction_id).first_or_404()
@@ -257,7 +265,7 @@ class TransactionItemAPI(MethodView):
         raise InvalidUsage()
 
     def put(self, user_id, transaction_id, item_id):
-        auth_key = request.args.get('key')
+        auth_key = get_auth_key(request)
         user = User.authenticate(user_id, auth_key)
         if user:
             transaction = user.transactions.filter_by(transaction_id=transaction_id).first_or_404()
@@ -274,7 +282,7 @@ class TransactionItemAPI(MethodView):
         raise InvalidUsage()
 
     def delete(self, user_id, transaction_id, item_id):
-        auth_key = request.args.get('key')
+        auth_key = get_auth_key(request)
         user = User.authenticate(user_id, auth_key)
         if user:
             transaction = user.transactions.filter_by(transaction_id=transaction_id).first_or_404()

@@ -8,7 +8,7 @@ class User(db.Model):
     name = db.Column(db.String(50))
     login = db.Column(db.String(50))
     password = db.Column(db.String(64))
-    auth_key = db.Column(db.String(10))
+    auth_key = db.Column(db.String(15))
 
     people = db.relationship('Person', backref='user', lazy='dynamic')
     transactions = db.relationship('Transaction', backref='user', lazy='dynamic')

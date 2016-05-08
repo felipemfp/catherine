@@ -1,5 +1,6 @@
 import sys
 from flask import Flask, json
+from flask.ext.cors import CORS
 from models import db
 from apis import InvalidUsage
 import routes
@@ -9,6 +10,8 @@ app.config.from_pyfile('config.py', silent=True)
 
 db.init_app(app)
 routes.init_app(app)
+
+CORS(app)
 
 
 @app.errorhandler(InvalidUsage)

@@ -28,5 +28,3 @@ def init_app(app):
     app.add_url_rule('/api/items/<int:user_id>/<int:transaction_id>/', view_func=transaction_item_view, methods=['POST', ])
     app.add_url_rule('/api/items/<int:user_id>/<int:transaction_id>/<int:item_id>', view_func=transaction_item_view,
                      methods=['GET', 'PUT', 'DELETE'])
-
-

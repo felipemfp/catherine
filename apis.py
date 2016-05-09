@@ -34,7 +34,8 @@ class UserAPI(MethodView):
 
     def post(self):
         supposed_user = request.get_json(force=True)
-        if supposed_user:
+        has_login_taken = User.query.filter_by(login=supposed_user['login']).first()
+        if supposed_user and not has_login_taken:
             user = User()
             user.name = supposed_user['name']
             user.login = supposed_user['login']

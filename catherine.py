@@ -28,9 +28,20 @@ def handle_not_found(error):
     return json.jsonify({'error': str(error)}), 404
 
 
+# @app.route('/testing/')
+# def testing():
+#     return '''
+#     <h1>Testing!</h1>
+#     <code>Use $.ajax()</code>
+#     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+#     '''
+
 if __name__ == '__main__':
     command = sys.argv[1] if len(sys.argv) > 1 else 'run'
     if command == 'run':
         app.run()
     elif command == 'migrate':
+        db.create_all(app=app)
+    elif command == 'migrate:drop':
+        db.drop_all(app=app)
         db.create_all(app=app)

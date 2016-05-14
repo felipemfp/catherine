@@ -5,10 +5,10 @@ db = SQLAlchemy()
 
 class User(db.Model):
     user_id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50))
-    login = db.Column(db.String(50))
+    name = db.Column(db.String(100))
+    username = db.Column(db.String(50))
     password = db.Column(db.String(64))
-    auth_key = db.Column(db.String(15))
+    # auth_key = db.Column(db.String(15))
 
     people = db.relationship('Person', backref='user', lazy='dynamic')
     transactions = db.relationship('Transaction', backref='user', lazy='dynamic')
@@ -21,18 +21,18 @@ class User(db.Model):
         return {
             'user_id': self.user_id,
             'name': self.name,
-            'login': self.login,
-            'password': '*',
-            'auth_key': self.auth_key,
+            'username': self.username,
+            # 'password': '*',
+            # 'auth_key': self.auth_key,
             'transactions': [transaction.as_dict() for transaction in self.transactions]
         }
 
-    @staticmethod
-    def authenticate(user_id, auth_key):
-        user = User.query.get(user_id)
-        if user and user.auth_key == auth_key:
-            return user
-        return None
+    # @staticmethod
+    # def authenticate(user_id, auth_key):
+    #     user = User.query.get(user_id)
+    #     if user and user.auth_key == auth_key:
+    #         return user
+    #     return None
 
 
 class Person(db.Model):

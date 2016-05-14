@@ -2,13 +2,9 @@ from flask import request, json
 from helpers import Crypt, Auth
 from flask.views import MethodView
 from models import db, User, Category, Person, Transaction, TransactionItem
-
-def get_auth_key(_request):
-    auth_key = ''
-    auth_key = _request.headers.get('AuthKey')
-    if not auth_key:
-        auth_key = _request.args.get('key')
-    return auth_key;
+from jose import jwt, JWTError
+import config
+import time
 
 
 class InvalidUsage(Exception):
@@ -24,44 +20,67 @@ class InvalidUsage(Exception):
         return '{}: {}'.format(self.status_code, self.message)
 
 
-class UserAPI(MethodView):
-    def get(self, user_id):
-        auth_key = get_auth_key(request)
-        user = User.authenticate(user_id, auth_key)
+class BaseAPI(MethodView):
+    def authenticate(self):
+        token = request.headers.get('Authorization')
+        if token:
+            try:
+                payload = jwt.decode(token.split(' ')[1], config.SECRET_KEY, algorithms=['HS256'])
+                return User.query.get(payload['user_id'])
+            except:
+                raise InvalidUsage('Invalid Token', status_code=401)
+        raise InvalidUsage('No token in header.', status_code=401)
+
+
+class LoginAPI(BaseAPI):
+    def post(self):
+        supposed_user = request.get_json(force=True)
+        user = User.query.filter_by(username=supposed_user['username']).first_or_404()
+        if user and user.password == Crypt.hash_sha256(supposed_user['password']):
+            token = jwt.encode({
+                'exp': time.time() + 20 * 60,
+                'user_id': user.user_id,
+                'username': user.username,
+                'name': user.name
+                }, config.SECRET_KEY, algorithm='HS256')
+            return json.jsonify({'token': token})
+        raise InvalidUsage("Username and password does not match.")
+
+
+class UserAPI(BaseAPI):
+    def get(self, username):
+        user = self.authenticate()
         if user:
             return json.jsonify(user.as_dict())
         raise InvalidUsage()
 
     def post(self):
         supposed_user = request.get_json(force=True)
-        has_login_taken = User.query.filter_by(login=supposed_user['login']).first()
-        if supposed_user and not has_login_taken:
+        has_username_taken = User.query.filter_by(username=supposed_user['username']).first()
+        if supposed_user and not has_username_taken:
             user = User()
             user.name = supposed_user['name']
-            user.login = supposed_user['login']
+            user.username = supposed_user['username']
             user.password = Crypt.hash_sha256(supposed_user['password'])
-            user.auth_key = Auth.get_new_key()
             db.session.add(user)
             db.session.commit()
             if user.user_id:
                 return json.jsonify(user.as_dict())
         raise InvalidUsage()
 
-    def put(self, user_id):
-        auth_key = get_auth_key(request)
-        user = User.authenticate(user_id, auth_key)
+    def put(self, username):
+        user = self.authenticate()
         if user:
             new_user = request.get_json(force=True)
             user.name = new_user['name']
-            user.login = new_user['login']
+            user.username = new_user['username']
             user.password = Crypt.hash_sha256(new_user['password'])
             db.session.commit()
             return json.jsonify(user.as_dict())
         raise InvalidUsage()
 
-    def delete(self, user_id):
-        auth_key = get_auth_key(request)
-        user = User.authenticate(user_id, auth_key)
+    def delete(self, username):
+        user = self.authenticate()
         if user:
             db.session.delete(user)
             db.session.commit()
@@ -69,28 +88,17 @@ class UserAPI(MethodView):
         raise InvalidUsage()
 
 
-class LoginAPI(MethodView):
-    def post(self):
-        supposed_user = request.get_json(force=True)
-        user = User.query.filter_by(login=supposed_user['login']).first_or_404()
-        if user and user.password == Crypt.hash_sha256(supposed_user['password']):
-            return json.jsonify(user.as_dict())
-        raise InvalidUsage()
-
-
-class CategoryAPI(MethodView):
-    def get(self, user_id, category_id):
-        auth_key = get_auth_key(request)
-        user = User.authenticate(user_id, auth_key)
+class CategoryAPI(BaseAPI):
+    def get(self, username, category_id):
+        user = self.authenticate()
         if user:
             if category_id:
                 return json.jsonify(user.categories.filter_by(category_id=category_id).first_or_404().as_dict())
             return json.jsonify({'categories': [category.as_dict() for category in user.categories]})
         raise InvalidUsage()
 
-    def post(self, user_id):
-        auth_key = get_auth_key(request)
-        user = User.authenticate(user_id, auth_key)
+    def post(self, username):
+        user = self.authenticate()
         if user:
             supposed_category = request.get_json(force=True)
             category = Category()
@@ -103,9 +111,8 @@ class CategoryAPI(MethodView):
                 return json.jsonify(category.as_dict())
         raise InvalidUsage()
 
-    def put(self, user_id, category_id):
-        auth_key = get_auth_key(request)
-        user = User.authenticate(user_id, auth_key)
+    def put(self, username, category_id):
+        user = self.authenticate()
         if user:
             new_category = request.get_json(force=True)
             category = user.categories.filter_by(category_id=category_id).first_or_404()
@@ -115,9 +122,8 @@ class CategoryAPI(MethodView):
             return json.jsonify(category.as_dict())
         raise InvalidUsage()
 
-    def delete(self, user_id, category_id):
-        auth_key = get_auth_key(request)
-        user = User.authenticate(user_id, auth_key)
+    def delete(self, username, category_id):
+        user = self.authenticate()
         if user:
             category = user.categories.filter_by(category_id=category_id).first_or_404()
             if category:
@@ -127,19 +133,17 @@ class CategoryAPI(MethodView):
         raise InvalidUsage()
 
 
-class PersonAPI(MethodView):
-    def get(self, user_id, person_id):
-        auth_key = get_auth_key(request)
-        user = User.authenticate(user_id, auth_key)
+class PersonAPI(BaseAPI):
+    def get(self, username, person_id):
+        user = self.authenticate()
         if user:
             if person_id:
                 return json.jsonify(user.people.filter_by(person_id=person_id).first_or_404().as_dict())
             return json.jsonify({'people': [person.as_dict() for person in user.people]})
         raise InvalidUsage()
 
-    def post(self, user_id):
-        auth_key = get_auth_key(request)
-        user = User.authenticate(user_id, auth_key)
+    def post(self, username):
+        user = self.authenticate()
         if user:
             supposed_person = request.get_json(force=True)
             person = Person()
@@ -151,9 +155,8 @@ class PersonAPI(MethodView):
                 return json.jsonify(person.as_dict())
         raise InvalidUsage()
 
-    def put(self, user_id, person_id):
-        auth_key = get_auth_key(request)
-        user = User.authenticate(user_id, auth_key)
+    def put(self, username, person_id):
+        user = self.authenticate()
         if user:
             new_person = request.get_json(force=True)
             person = user.people.filter_by(person_id=person_id).first_or_404()
@@ -162,9 +165,8 @@ class PersonAPI(MethodView):
             return json.jsonify(person.as_dict())
         raise InvalidUsage()
 
-    def delete(self, user_id, person_id):
-        auth_key = get_auth_key(request)
-        user = User.authenticate(user_id, auth_key)
+    def delete(self, username, person_id):
+        user = self.authenticate()
         if user:
             person = user.people.filter_by(person_id=person_id).first_or_404()
             if person:
@@ -174,19 +176,17 @@ class PersonAPI(MethodView):
         raise InvalidUsage()
 
 
-class TransactionAPI(MethodView):
-    def get(self, user_id, transaction_id):
-        auth_key = get_auth_key(request)
-        user = User.authenticate(user_id, auth_key)
+class TransactionAPI(BaseAPI):
+    def get(self, username, transaction_id):
+        user = self.authenticate()
         if user:
             if transaction_id:
                 return json.jsonify(user.transactions.filter_by(transaction_id=transaction_id).first_or_404().as_dict())
             return json.jsonify({'transactions': [transaction.as_dict() for transaction in user.transactions]})
         raise InvalidUsage()
 
-    def post(self, user_id):
-        auth_key = get_auth_key(request)
-        user = User.authenticate(user_id, auth_key)
+    def post(self, username):
+        user = self.authenticate()
         if user:
             supposed_transaction = request.get_json(force=True)
             transaction = Transaction()
@@ -204,9 +204,8 @@ class TransactionAPI(MethodView):
                 return json.jsonify(transaction.as_dict())
         raise InvalidUsage()
 
-    def put(self, user_id, transaction_id):
-        auth_key = get_auth_key(request)
-        user = User.authenticate(user_id, auth_key)
+    def put(self, username, transaction_id):
+        user = self.authenticate()
         if user:
             new_transaction = request.get_json(force=True)
             transaction = user.transactions.filter_by(transaction_id=transaction_id).first_or_404()
@@ -221,9 +220,8 @@ class TransactionAPI(MethodView):
             return json.jsonify(transaction.as_dict())
         raise InvalidUsage()
 
-    def delete(self, user_id, transaction_id):
-        auth_key = get_auth_key(request)
-        user = User.authenticate(user_id, auth_key)
+    def delete(self, username, transaction_id):
+        user = self.authenticate()
         if user:
             transaction = user.transactions.filter_by(transaction_id=transaction_id).first_or_404()
             if transaction:
@@ -233,10 +231,9 @@ class TransactionAPI(MethodView):
         raise InvalidUsage()
 
 
-class TransactionItemAPI(MethodView):
-    def get(self, user_id, transaction_id, item_id):
-        auth_key = get_auth_key(request)
-        user = User.authenticate(user_id, auth_key)
+class TransactionItemAPI(BaseAPI):
+    def get(self, username, transaction_id, item_id):
+        user = self.authenticate()
         if user:
             transaction = user.transactions.filter_by(transaction_id=transaction_id).first_or_404()
             if item_id:
@@ -244,9 +241,8 @@ class TransactionItemAPI(MethodView):
             return json.jsonify({'transaction_items': [item.as_dict() for item in transaction.transaction_items]})
         raise InvalidUsage()
 
-    def post(self, user_id, transaction_id):
-        auth_key = get_auth_key(request)
-        user = User.authenticate(user_id, auth_key)
+    def post(self, username, transaction_id):
+        user = self.authenticate()
         if user:
             transaction = user.transactions.filter_by(transaction_id=transaction_id).first_or_404()
             supposed_item = request.get_json(force=True)
@@ -265,9 +261,8 @@ class TransactionItemAPI(MethodView):
                 return json.jsonify(item.as_dict())
         raise InvalidUsage()
 
-    def put(self, user_id, transaction_id, item_id):
-        auth_key = get_auth_key(request)
-        user = User.authenticate(user_id, auth_key)
+    def put(self, username, transaction_id, item_id):
+        user = self.authenticate()
         if user:
             transaction = user.transactions.filter_by(transaction_id=transaction_id).first_or_404()
             new_item = request.get_json(force=True)
@@ -282,9 +277,8 @@ class TransactionItemAPI(MethodView):
             return json.jsonify(item.as_dict())
         raise InvalidUsage()
 
-    def delete(self, user_id, transaction_id, item_id):
-        auth_key = get_auth_key(request)
-        user = User.authenticate(user_id, auth_key)
+    def delete(self, username, transaction_id, item_id):
+        user = self.authenticate()
         if user:
             transaction = user.transactions.filter_by(transaction_id=transaction_id).first_or_404()
             item = transaction.transaction_items.filter_by(item_id=item_id).first_or_404()

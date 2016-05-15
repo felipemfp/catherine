@@ -38,7 +38,7 @@ class LoginAPI(BaseAPI):
         user = User.query.filter_by(username=supposed_user['username']).first_or_404()
         if user and user.password == Crypt.hash_sha256(supposed_user['password']):
             token = jwt.encode({
-                'exp': time.time() + 20 * 60,
+                'exp': time.time() + 60 * 60 * 24 * 7,
                 'user_id': user.user_id,
                 'username': user.username,
                 'name': user.name

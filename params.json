@@ -1,0 +1,6 @@
+{
+  "name": "Catherine",
+  "tagline": "Catherine allows developers and students to create web, desktop and mobile applications that integrate a RESTful API.",
+  "body": "# Catherine\r\n\r\nCatherine allows developers and students to create web, desktop and mobile applications that integrate a RESTful API.\r\n\r\n**You do not use it for real applications**.\r\n\r\n### Authentication\r\nCatherine makes use of the open standard JSON Web Tokens to provide secure information. [Read more](https://jwt.io/introduction/).\r\n\r\n### Response Formatting (JSON)\r\nAll response is formatted in JSON (JavaScript Object Notation) and UTF-8 encoded.\r\n\r\n### API Request\r\n\r\nAll request should include a JSON Web Token in header, except to login or register user.\r\n\r\nError messages are simple and like:\r\n\r\n```json\r\n{\r\n  \"error\": \"405: Method Not Allowed\"\r\n}\r\n```\r\n\r\n",
+  "note": "Don't delete this file! It's used internally to help with page regeneration."
+}

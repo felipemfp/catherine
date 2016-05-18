@@ -38,7 +38,7 @@ Then you are able to run the API:
 $ python catherine.py
 ```
 
-Notes: running on your local machine, Catherine will make use of SQLite. But about the authentication, responses e requests are the same of [Catherine API on Heroku](#Catherine API on Heroku) until you change that.
+Notes: running on your local machine, Catherine will make use of SQLite. But about the authentication, responses e requests are the same of [Catherine API on Heroku](#catherine-api-on-heroku) until you change that.
 
 ## [Catherine API on Heroku](//catherine-api.herokuapp.com/)
 

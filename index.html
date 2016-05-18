@@ -26,6 +26,48 @@
 
 <p><strong>You do not use it for real applications</strong>.</p>
 
+<h2>
+<a id="catherine-on-local" class="anchor" href="#catherine-on-local" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Catherine on Local</h2>
+
+<p>These instructions will get you a copy of the project up and running on your local machine.</p>
+
+<h3>
+<a id="prerequisities" class="anchor" href="#prerequisities" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Prerequisities</h3>
+
+<ul>
+<li>Python 3.4 (or later)</li>
+<li>pip</li>
+<li>virtualenv (optional)</li>
+</ul>
+
+<p>Once you have all, go to the terminal (or similar):</p>
+
+<pre><code>$ git clone https://github.com/felipemfp/catherine.git
+$ cd catherine
+$ virtualenv env
+$ . env/bin/activate
+$ pip install -r requirements.txt
+</code></pre>
+
+<h3>
+<a id="running" class="anchor" href="#running" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Running</h3>
+
+<p>At the first time, you'll need to create the database:</p>
+
+<pre><code>$ python catherine.py migrate
+</code></pre>
+
+<p>Then you are able to run the API:</p>
+
+<pre><code>$ python catherine.py
+</code></pre>
+
+<p>Notes: running on your local machine, Catherine will make use of SQLite. But about the authentication, responses e requests are the same of <a href="#catherine-api-on-heroku">Catherine API on Heroku</a> until you change that.</p>
+
+<h2>
+<a id="catherine-api-on-heroku" class="anchor" href="#catherine-api-on-heroku" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a><a href="//catherine-api.herokuapp.com/">Catherine API on Heroku</a>
+</h2>
+
 <h3>
 <a id="authentication" class="anchor" href="#authentication" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Authentication</h3>
 
@@ -46,6 +88,23 @@
 <div class="highlight highlight-source-json"><pre>{
   <span class="pl-s"><span class="pl-pds">"</span>error<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>405: Method Not Allowed<span class="pl-pds">"</span></span>
 }</pre></div>
+
+<h2>
+<a id="thanks-to" class="anchor" href="#thanks-to" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Thanks to...</h2>
+
+<ul>
+<li><a href="//github.com/chicobentojr">Francisco Bento</a></li>
+</ul>
+
+<h2>
+<a id="contributing" class="anchor" href="#contributing" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Contributing</h2>
+
+<p>Just send a pull request and explain about.</p>
+
+<h2>
+<a id="license" class="anchor" href="#license" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>License</h2>
+
+<p>This project is licensed under the GNU General Public License - see the <a href="LICENSE">LICENSE</a> file for details</p>
 
       <footer class="site-footer">
         <span class="site-footer-owner"><a href="https://github.com/felipemfp/catherine">Catherine</a> is maintained by <a href="https://github.com/felipemfp">felipemfp</a>.</span>

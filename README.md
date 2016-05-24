@@ -50,7 +50,19 @@ All response is formatted in JSON (JavaScript Object Notation) and UTF-8 encoded
 
 ### API Request
 
-All request should include a JSON Web Token in header, except to login or register user.
+All request should include a JSON Web Token in header like `Authorization: Bearer <token>`, except to login or register user.
+
+```
+GET: /api/users/felipemfp
+```
+```json
+{
+  "name": "Felipe Pontes",
+  "transactions": [],
+  "user_id": 1,
+  "username": "felipemfp"
+}
+```
 
 Error messages are simple and like:
 

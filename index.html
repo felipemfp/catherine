@@ -81,7 +81,17 @@ $ pip install -r requirements.txt
 <h3>
 <a id="api-request" class="anchor" href="#api-request" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>API Request</h3>
 
-<p>All request should include a JSON Web Token in header, except to login or register user.</p>
+<p>All request should include a JSON Web Token in header like <code>Authorization: Bearer &lt;token&gt;</code>, except to login or register user.</p>
+
+<pre><code>GET: /api/users/felipemfp
+</code></pre>
+
+<div class="highlight highlight-source-json"><pre>{
+  <span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>Felipe Pontes<span class="pl-pds">"</span></span>,
+  <span class="pl-s"><span class="pl-pds">"</span>transactions<span class="pl-pds">"</span></span>: [],
+  <span class="pl-s"><span class="pl-pds">"</span>user_id<span class="pl-pds">"</span></span>: <span class="pl-c1">1</span>,
+  <span class="pl-s"><span class="pl-pds">"</span>username<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>felipemfp<span class="pl-pds">"</span></span>
+}</pre></div>
 
 <p>Error messages are simple and like:</p>
 

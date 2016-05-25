@@ -1,4 +1,4 @@
-# Catherine
+# ![Catherine](https://65.media.tumblr.com/9b646cde94aea1a78ee8be7dff9b0b89/tumblr_o7pidpRyyD1vnlnoto1_1280.png)
 
 Catherine allows developers and students to create web, desktop and mobile applications that integrate a RESTful API.
 

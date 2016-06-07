@@ -102,9 +102,10 @@ class CategoryAPI(BaseAPI):
         if user:
             supposed_category = request.get_json(force=True)
             category = Category()
-            category.user_id = user_id
+            category.category_id = 1 if len(user.categories.all()) == 0 else user.categories.all()[-1].category_id + 1
+            category.user_id = user.user_id
             category.name = supposed_category['name']
-            category.icon_id = supposed_category['icon_id']
+            category.icon = supposed_category['icon']
             db.session.add(category)
             db.session.commit()
             if category.category_id:
@@ -117,7 +118,7 @@ class CategoryAPI(BaseAPI):
             new_category = request.get_json(force=True)
             category = user.categories.filter_by(category_id=category_id).first_or_404()
             category.name = new_category['name']
-            category.icon_id = new_category['icon_id']
+            category.icon = new_category['icon']
             db.session.commit()
             return json.jsonify(category.as_dict())
         raise InvalidUsage()
@@ -147,7 +148,8 @@ class PersonAPI(BaseAPI):
         if user:
             supposed_person = request.get_json(force=True)
             person = Person()
-            person.user_id = user_id
+            person.person_id = 1 if len(user.people.all()) == 0 else user.people.all()[-1].person_id + 1
+            person.user_id = user.user_id
             person.name = supposed_person['name']
             db.session.add(person)
             db.session.commit()
@@ -190,7 +192,8 @@ class TransactionAPI(BaseAPI):
         if user:
             supposed_transaction = request.get_json(force=True)
             transaction = Transaction()
-            transaction.user_id = user_id
+            transaction.transaction_id = 1 if len(user.transactions.all()) == 0 else user.transactions.all()[-1].transaction_id + 1
+            transaction.user_id = user.user_id
             transaction.category_id = supposed_transaction['category_id']
             transaction.person_id = supposed_transaction['person_id']
             transaction.transaction_date = supposed_transaction['transaction_date']
@@ -247,7 +250,8 @@ class TransactionItemAPI(BaseAPI):
             transaction = user.transactions.filter_by(transaction_id=transaction_id).first_or_404()
             supposed_item = request.get_json(force=True)
             item = TransactionItem()
-            item.user_id = user_id
+            item.item_id = 1 if len(transaction.transaction_items.all()) else transaction.transaction_items.all()[-1].item_id + 1
+            item.user_id = user.user_id
             item.transaction_id = transaction.transaction_id
             item.person_id = supposed_item['person_id']
             item.item_date = supposed_item['item_date']

@@ -4,6 +4,7 @@ import os
 
 
 class Auth:
+
     @staticmethod
     def get_new_key():
         CHARS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
@@ -14,6 +15,7 @@ class Auth:
 
 
 class Crypt:
+
     @staticmethod
     def hash_sha256(text):
         SALT = os.environ.get('SALT', 'development_salt')

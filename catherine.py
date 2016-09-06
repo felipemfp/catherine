@@ -18,6 +18,7 @@ CORS(app)
 def handle_invalid_usage(error):
     return json.jsonify({'error': str(error)}), error.status_code
 
+
 @app.errorhandler(405)
 def handle_not_allowed(error):
     return json.jsonify({'error': str(error)}), 405
@@ -26,15 +27,6 @@ def handle_not_allowed(error):
 @app.errorhandler(404)
 def handle_not_found(error):
     return json.jsonify({'error': str(error)}), 404
-
-
-# @app.route('/testing/')
-# def testing():
-#     return '''
-#     <h1>Testing!</h1>
-#     <code>Use $.ajax()</code>
-#     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
-#     '''
 
 if __name__ == '__main__':
     command = sys.argv[1] if len(sys.argv) > 1 else 'run'

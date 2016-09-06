@@ -10,7 +10,8 @@ class User(db.Model):
     password = db.Column(db.String(64))
 
     people = db.relationship('Person', backref='user', lazy='dynamic')
-    transactions = db.relationship('Transaction', backref='user', lazy='dynamic')
+    transactions = db.relationship(
+        'Transaction', backref='user', lazy='dynamic')
     categories = db.relationship('Category', backref='user', lazy='dynamic')
 
     def __repr__(self):
@@ -25,12 +26,15 @@ class User(db.Model):
 
 
 class Person(db.Model):
-    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey(
+        'user.user_id'), primary_key=True)
     person_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
 
-    transactions = db.relationship('Transaction', backref='person', lazy='dynamic')
-    transaction_items = db.relationship('TransactionItem', backref='person', lazy='dynamic')
+    transactions = db.relationship(
+        'Transaction', backref='person', lazy='dynamic')
+    transaction_items = db.relationship(
+        'TransactionItem', backref='person', lazy='dynamic')
 
     def __repr__(self):
         return '<Person {}>'.format(self.person_id)
@@ -44,7 +48,8 @@ class Person(db.Model):
 
 
 class Transaction(db.Model):
-    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey(
+        'user.user_id'), primary_key=True)
     transaction_id = db.Column(db.Integer, primary_key=True)
     category_id = db.Column(db.Integer, nullable=False)
     person_id = db.Column(db.Integer, nullable=False)
@@ -54,9 +59,10 @@ class Transaction(db.Model):
     type = db.Column(db.String(1))
     done = db.Column(db.Boolean)
 
-    transaction_items = db.relationship('TransactionItem', backref='transaction', lazy='dynamic')
+    transaction_items = db.relationship(
+        'TransactionItem', backref='transaction', lazy='dynamic')
 
-    __table_args__= (
+    __table_args__ = (
         db.ForeignKeyConstraint(
             ['user_id', 'person_id'],
             ['person.user_id', 'person.person_id']
@@ -83,7 +89,8 @@ class Transaction(db.Model):
             'done': self.done,
             'person': self.person.as_dict(),
             'category': self.category.as_dict(),
-            'transaction_items': [item.as_dict() for item in self.transaction_items]
+            'transaction_items': [item.as_dict() for item in
+                                  self.transaction_items]
         }
 
 
@@ -110,7 +117,9 @@ class TransactionItem(db.Model):
     )
 
     def __repr__(self):
-        return '<Transaction Item {}.{}.{}>'.format(self.user_id, self.transaction_id, self.item_id)
+        return '<Transaction Item {}.{}.{}>'.format(self.user_id,
+                                                    self.transaction_id,
+                                                    self.item_id)
 
     def as_dict(self):
         return {
@@ -127,12 +136,14 @@ class TransactionItem(db.Model):
 
 
 class Category(db.Model):
-    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey(
+        'user.user_id'), primary_key=True)
     category_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
     icon = db.Column(db.String(50))
 
-    transactions = db.relationship('Transaction', backref='category', lazy='dynamic')
+    transactions = db.relationship(
+        'Transaction', backref='category', lazy='dynamic')
 
     def __repr__(self):
         return '<Category {}.{}>'.format(self.user_id, self.category_id)

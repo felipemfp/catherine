@@ -1,6 +1,7 @@
 # project/server/config.py
 
 import os
+import datetime
 from decouple import config
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -13,6 +14,12 @@ class BaseConfig(object):
     BCRYPT_LOG_ROUNDS = config('BCRYPT_LOG_ROUNDS', default=13, cast=int)
     SQLALCHEMY_TRACK_MODIFICATIONS = config(
         'SQLALCHEMY_TRACK_MODIFICATIONS', default=False, cast=bool)
+    JWT_ALGORITHM = config('JWT_ALGORITHM', default='HS256')
+    JWT_EXPIRATION_SECONDS = config(
+        'JWT_EXPIRATION_SECONDS', default=300, cast=int)
+    JWT_REFRESH_EXPIRATION_SECONDS = config(
+        'JWT_REFRESH_EXPIRATION_SECONDS', default=7 * 24 * 60 * 60, cast=int)
+    JWT_AUTH_HEADER_PREFIX = config('JWT_AUTH_HEADER_PREFIX', default='JWT')
 
 
 class DevelopmentConfig(BaseConfig):

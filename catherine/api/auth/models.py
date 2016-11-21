@@ -1,8 +1,11 @@
+import arrow
+
 from catherine.api import app, db, bcrypt
 from sqlalchemy_utils import ArrowType
+from flask_login import UserMixin
 
 
-class User(db.Model):
+class User(UserMixin, db.Model):
 
     __tablename__ = 'users'
 

@@ -68,3 +68,5 @@ target/
 .ipynb_checkpoints
 
 .env
+
+tmp/

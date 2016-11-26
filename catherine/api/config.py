@@ -20,6 +20,7 @@ class BaseConfig(object):
     JWT_REFRESH_EXPIRATION_SECONDS = config(
         'JWT_REFRESH_EXPIRATION_SECONDS', default=7 * 24 * 60 * 60, cast=int)
     JWT_AUTH_HEADER_PREFIX = config('JWT_AUTH_HEADER_PREFIX', default='JWT')
+    BUNDLE_ERRORS = config('BUNDLE_ERRORS', default=True, cast=bool)
 
 
 class DevelopmentConfig(BaseConfig):

@@ -28,10 +28,12 @@ token_fields = {
 class UserBase(Resource):
 
     def get_user(self, username):
-        user = User.query.filter_by(username=username).first()
-        if not user:
-            abort(404, message="User {} doesn't exist".format(username))
+        user = User.query.filter_by(username=username).first_or_404()
         return user
+
+    def is_username_already_taken(self, username):
+        user = User.query.filter_by(username=username).first()
+        return user is not None
 
 
 class UserDetail(UserBase):
@@ -44,54 +46,47 @@ class UserDetail(UserBase):
 
     @marshal_with(user_fields)
     @login_required
-    def get(self, username):
-        if username != current_user.username:
-            abort(401)
-        user = self.get_user(username)
-        return user
+    def get(self):
+        return current_user
 
     @login_required
-    def delete(self, username):
-        if username != current_user.username:
-            abort(401)
-        user = self.get_user(username)
-        db.session.delete(user)
+    def delete(self):
+        db.session.delete(current_user)
         db.session.commit()
         return {}, 204
 
     @marshal_with(user_fields)
     @login_required
-    def put(self, username):
-        if username != current_user.username:
-            abort(401)
+    def put(self):
         args = self.put_parser.parse_args()
-        user = self.get_user(username)
         # Update password if current one matches
         if None not in [args['cur_password'], args['new_password']]:
-            if user.check_password(args['cur_password']):
-                user.set_password(args['new_password'])
+            if current_user.check_password(args['cur_password']):
+                current_user.set_password(args['new_password'])
             else:
                 abort(400, message='Invalid password')
         if args['first_name'] is not None:
-            user.first_name = args['first_name']
+            current_user.first_name = args['first_name']
         if args['last_name'] is not None:
-            user.last_name = args['last_name']
-        db.session.add(user)
+            current_user.last_name = args['last_name']
+        db.session.add(current_user)
         db.session.commit()
-        return user, 200
+        return current_user, 200
 
 
-class UserList(UserBase):
+class UserRegister(UserBase):
 
     parser = reqparse.RequestParser()
     parser.add_argument('first_name', type=str)
     parser.add_argument('last_name', type=str)
-    parser.add_argument('username', type=str)
-    parser.add_argument('password', type=str)
+    parser.add_argument('username', type=str, required=True)
+    parser.add_argument('password', type=str, required=True)
 
     @marshal_with(user_fields)
     def post(self):
         parsed_args = self.parser.parse_args()
+        if self.is_username_already_taken(parsed_args['username']):
+            abort(400, message='Username already taken.')
         user = User(
             username=parsed_args['username'],
             first_name=parsed_args['first_name'],
@@ -100,7 +95,7 @@ class UserList(UserBase):
         user.set_password(parsed_args['password'])
         db.session.add(user)
         db.session.commit()
-        return user, 201
+        return {}, 201
 
 
 class AuthToken(UserBase):
@@ -135,8 +130,6 @@ class AuthRefreshToken(UserBase):
         args = self.token_parser.parse_args()
         try:
             payload = jwt.decode(args['token'], app.config.get('SECRET_KEY'))
-        except jwt.exceptions.ExpiredSignatureError:
-            payload = jwt.decode(args['token'], verify=False)
         except:
             payload = None
         if payload is not None:
@@ -157,5 +150,5 @@ class AuthRefreshToken(UserBase):
 
 api.add_resource(AuthToken, '/login/')
 api.add_resource(AuthRefreshToken, '/login/refresh/')
-api.add_resource(UserDetail, '/users/<string:username>')
-api.add_resource(UserList, '/users/')
+api.add_resource(UserDetail, '/me/')
+api.add_resource(UserRegister, '/register/')

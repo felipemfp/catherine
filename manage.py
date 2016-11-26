@@ -57,6 +57,12 @@ def cov():
 
 
 @manager.command
+def check():
+    """Checks source code for errors."""
+    os.system('pyflakes catherine')
+
+
+@manager.command
 def create_db():
     """Creates the db tables."""
     db.create_all()

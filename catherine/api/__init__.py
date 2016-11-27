@@ -57,5 +57,7 @@ def unauthorized():
 # blueprints
 
 from catherine.api.auth.resources import auth_blueprint
+from catherine.api.categories.resources import categories_blueprint
 
 app.register_blueprint(auth_blueprint)
+app.register_blueprint(categories_blueprint)

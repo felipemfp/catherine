@@ -148,7 +148,7 @@ class AuthRefreshToken(UserBase):
         abort(401, message='Invalid token')
 
 
-api.add_resource(AuthToken, '/login/')
-api.add_resource(AuthRefreshToken, '/login/refresh/')
+api.add_resource(AuthToken, '/token/')
+api.add_resource(AuthRefreshToken, '/token/refresh/')
 api.add_resource(UserDetail, '/me/')
 api.add_resource(UserRegister, '/register/')

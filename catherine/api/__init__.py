@@ -1,9 +1,6 @@
 # catherine/api/__init__.py
 
-
-from collections import OrderedDict
-
-from flask import Flask, jsonify
+from flask import Flask
 from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS

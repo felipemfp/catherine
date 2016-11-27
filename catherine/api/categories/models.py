@@ -1,7 +1,4 @@
-import arrow
-
 from catherine.api import db
-from sqlalchemy_utils import ArrowType
 
 
 class Category(db.Model):

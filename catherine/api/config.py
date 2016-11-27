@@ -1,7 +1,6 @@
 # project/server/config.py
 
 import os
-import datetime
 from decouple import config
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))

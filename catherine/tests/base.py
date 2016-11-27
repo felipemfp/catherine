@@ -1,7 +1,6 @@
 from flask_testing import TestCase
 
 from catherine.api import app, db
-from catherine.api.auth.models import User
 
 
 class BaseTestCase(TestCase):

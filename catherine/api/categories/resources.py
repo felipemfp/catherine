@@ -1,15 +1,10 @@
-import arrow
-import jwt
-
 from flask import Blueprint
 
 from flask_restful import Api, Resource, marshal_with, reqparse, abort, fields
 from flask_login import current_user, login_required
 
-from catherine.api import app, db
-from catherine.api.auth.models import User
+from catherine.api import db
 from catherine.api.categories.models import Category
-from catherine.api.base import fields as custom_fields
 
 categories_blueprint = Blueprint('api_categories', __name__)
 api = Api(categories_blueprint, catch_all_404s=True)

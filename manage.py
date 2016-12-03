@@ -3,6 +3,7 @@
 import os
 import unittest
 import coverage
+import getpass
 
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
@@ -77,7 +78,21 @@ def drop_db():
 @manager.command
 def create_data():
     """Creates sample data."""
-    pass
+    from catherine.api.targets.models import TargetType
+    db.session.add(TargetType('Pessoa'))
+    db.session.add(TargetType('Estabelecimento'))
+    db.session.commit()
+
+
+@manager.command
+def create_user():
+    """Creates user."""
+    from catherine.api.auth.models import User
+    username = input('Username: ').strip()
+    password = getpass.getpass('Password: ')
+    user = User(username, password=password)
+    db.session.add(user)
+    db.session.commit()
 
 
 if __name__ == '__main__':

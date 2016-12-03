@@ -12,25 +12,23 @@ api = Api(categories_blueprint, catch_all_404s=True)
 category_fields = {
     'id': fields.Integer,
     'user': fields.String(attribute='user.username'),
-    'description': fields.String,
-    'icon': fields.String
+    'description': fields.String
 }
 
 
-class CategoryBase(Resource):
+class CategoryBaseResource(Resource):
 
     def get_category(self, pk):
         category = Category.query.get_or_404(pk)
-        if category.user_id is not current_user.id:
+        if category.user_id != current_user.id:
             abort(400)
         return category
 
 
-class CategoryDetail(CategoryBase):
+class CategoryDetail(CategoryBaseResource):
 
     put_parser = reqparse.RequestParser()
     put_parser.add_argument('description', type=str)
-    put_parser.add_argument('icon', type=str)
 
     @marshal_with(category_fields)
     @login_required
@@ -44,8 +42,6 @@ class CategoryDetail(CategoryBase):
         category = self.get_category(pk)
         if args['description'] is not None:
             category.description = args['description']
-        if args['icon'] is not None:
-            category.icon = args['icon']
         db.session.add(category)
         db.session.commit()
         return category, 200
@@ -58,11 +54,10 @@ class CategoryDetail(CategoryBase):
         return {}, 204
 
 
-class CategoryList(CategoryBase):
+class CategoryList(CategoryBaseResource):
 
     parser = reqparse.RequestParser()
     parser.add_argument('description', type=str, required=True)
-    parser.add_argument('icon', type=str)
 
     @marshal_with(category_fields)
     @login_required
@@ -74,7 +69,6 @@ class CategoryList(CategoryBase):
         args = self.parser.parse_args()
         category = Category(
             description=args['description'],
-            icon=args['icon'],
             user=current_user
         )
         db.session.add(category)

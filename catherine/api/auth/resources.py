@@ -25,7 +25,7 @@ token_fields = {
 }
 
 
-class UserBase(Resource):
+class UserBaseResource(Resource):
 
     def get_user(self, username):
         user = User.query.filter_by(username=username).first_or_404()
@@ -36,7 +36,7 @@ class UserBase(Resource):
         return user is not None
 
 
-class UserDetail(UserBase):
+class UserDetail(UserBaseResource):
 
     put_parser = reqparse.RequestParser()
     put_parser.add_argument('first_name', type=str)
@@ -74,7 +74,7 @@ class UserDetail(UserBase):
         return current_user, 200
 
 
-class UserRegister(UserBase):
+class UserRegister(UserBaseResource):
 
     parser = reqparse.RequestParser()
     parser.add_argument('first_name', type=str)
@@ -98,7 +98,7 @@ class UserRegister(UserBase):
         return {}, 201
 
 
-class AuthToken(UserBase):
+class AuthToken(UserBaseResource):
 
     token_parser = reqparse.RequestParser()
     token_parser.add_argument('username', type=str)
@@ -121,7 +121,7 @@ class AuthToken(UserBase):
             abort(401, message='Invalid login info')
 
 
-class AuthRefreshToken(UserBase):
+class AuthRefreshToken(UserBaseResource):
     token_parser = reqparse.RequestParser()
     token_parser.add_argument('token', type=str)
 

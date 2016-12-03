@@ -38,4 +38,4 @@ class User(UserMixin, db.Model):
         return self.password
 
     def __repr__(self):
-        return '<User {}>'.format(self.username)
+        return '<User: {}>'.format(self.username)
